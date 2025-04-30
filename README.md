@@ -1,0 +1,37 @@
+# Engineering Patterns
+
+A curated collection of infrastructure and automation patterns from the field.
+
+Each folder contains a reproducible implementation of a high-leverage solution—designed for clarity, portability, and reuse.
+
+These aren’t just scripts—they’re engineering *blueprints*.
+
+---
+
+## Contents
+
+| Pattern | Description |
+|--------|-------------|
+| `tailscale-bindplane-bootstrap/` | Zero-touch onboarding for log agents using Tailscale mesh + Bindplane |
+| `iris-serverless-security-pipeline` | Serverless ETL pipeline using Cloud Run to ingest, transform, and ship logs to GCP Storage with Slack alerts. |
+| `zero-trust-vpn-gateway/` | Blueprint for routing home lab traffic through a secure ProtonVPN gateway |
+
+---
+
+## What is a Pattern?
+
+An Engineering Pattern is a repeatable solution to a common problem in ops, security, or automation.
+
+Each one includes:
+- A clear problem statement
+- A battle-tested solution
+- Implementation details (code, diagrams, configs)
+- Key insights and learnings
+
+---
+
+## Why This Repo?
+
+This repo exists to:
+- Capture brainchilds born from real patterns
+- Make my tooling portable and reusable, instead of having 1 repo for every pattern
