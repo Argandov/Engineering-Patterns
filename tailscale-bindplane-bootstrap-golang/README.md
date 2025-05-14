@@ -16,7 +16,7 @@ This program does the following:
 
 - Upon success or failure, sends a Slack notification via Webhook. 
 -
-![Slack webhook notification screenshot](/img/webhook.png)
+![Slack webhook notification screenshot](./img/webhook.png)
 
 ## EXECUTION
 
