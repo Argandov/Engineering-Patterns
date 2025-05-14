@@ -1,4 +1,4 @@
-module siem-collector-bootstrap
+module tailscale-bindplane-bootstrap
 
 go 1.22.1
 

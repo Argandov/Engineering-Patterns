@@ -3,7 +3,7 @@ package system
 import (
 	"fmt"
 
-	"siem-collector-bootstrap/helpers"
+	"tailscale-bindplane-bootstrap/helpers"
 )
 
 func EnsureSSH() error {

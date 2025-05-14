@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
-	"siem-collector-bootstrap/helpers"
-	"siem-collector-bootstrap/pkg"
-	"siem-collector-bootstrap/system"
+	"tailscale-bindplane-bootstrap/helpers"
+	"tailscale-bindplane-bootstrap/pkg"
+	"tailscale-bindplane-bootstrap/system"
 
 	"github.com/spf13/cobra"
 )

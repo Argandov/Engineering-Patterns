@@ -2,7 +2,7 @@ package pkg
 
 import (
 	"fmt"
-	"siem-collector-bootstrap/helpers"
+	"tailscale-bindplane-bootstrap/helpers"
 )
 
 // InstallTailscale streams the official installer, enables the service, and runs `tailscale up`.

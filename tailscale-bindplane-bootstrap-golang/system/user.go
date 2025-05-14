@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"siem-collector-bootstrap/helpers"
+	"tailscale-bindplane-bootstrap/helpers"
 )
 
 func CreateUser(username, b64pass string) error {
