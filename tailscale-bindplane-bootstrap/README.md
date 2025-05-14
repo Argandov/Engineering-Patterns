@@ -1,5 +1,11 @@
 # Pattern: Tailscale + Bindplane Zero-Touch Onboarding
 
+---
+
+OLD SHELL SCRIPT. USE GOLANG VERSION IN THIS REPOSITORY.
+
+---
+
 ## Problem
 
 Onboarding log ingestion agents across isolated client networks with secure access, minimal setup, and strict isolation.
