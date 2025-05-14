@@ -14,6 +14,10 @@ This program does the following:
 - Enables SSH and runs ssh server
 - Installs Tailscale
 
+- Upon success or failure, sends a Slack notification via Webhook. 
+-
+![img/webhook.png]
+
 ## EXECUTION
 
 Running:
