@@ -4,18 +4,18 @@
 
 This program does the following:
 
-- Performs some initial checks:
+- Performs some initial checks in the system:
     - User under which the program is running exists has sudo permissions
-    - Server has internet access and can retrieve Tailscale and Bindplane install scripts by calling this URLS.
-
-- Creates a user, which name is hardcoded in the YAML file
-    - Sets a password -> Passed in as environment variable Base64 encoded
+    - Server has internet access and can retrieve Tailscale (tailscale.com) and Bindplane install scripts (github.com) by testing connectivity to this URLS.
+- Creates a user, which name is passed as a flag,
+    - Sets a password which is passed as a Base64 flag
     - Places user in sudoers
-- Enables SSH and runs ssh server
-- Installs Tailscale
-
+- Ensures SSH service is up and enabled
+- Installs and sets up Tailscale
+- Installs and sets up Bindplane agent
+- Verifies everything was set up correctly
 - Upon success or failure, sends a Slack notification via Webhook. 
--
+
 ![Slack webhook notification screenshot](./img/webhook.png)
 
 ## EXECUTION
@@ -23,7 +23,13 @@ This program does the following:
 Running:
 
 ```bash
-sudo ./bootstrap -i $C_ID -u $USERNAME -p $B64_PASSWORDK -w $OPAMP_ENDPOINT -k $BP_KEY -v $BP_VERSION -c $BP_CONFIG -K $TS_KEY -s $SLACK_WEBHOOK_ENDPOINT
+sudo ./bootstrap-linux-amd64 -i $C_ID -u $USERNAME -p $B64_PASSWORDK -w $OPAMP_ENDPOINT -k $BP_KEY -v $BP_VERSION -c $BP_CONFIG -K $TS_KEY -s $SLACK_WEBHOOK_ENDPOINT
+```
+
+Example:
+
+```bash
+sudo bootstrap-linux-amd64 -i homelab -u user -p 'cGFzc3dvcmQxMjMK' -w 'app.bindplane.com/v1/opamp' -k 'DEADBEEFC8D775H07XWQ3X' -v '1.76.4' -c "configuration=LinuxCollectorAgent,install_id=deadbeef-d15c-420f-9ede-b1de5f57d6c4" -K "tskey-auth-deadbeef-DEADBEEFNAUpShGkh5FN71Yai2a76H" -s "DEADBEEF/B08D2NPSHG9/NO98hp0SptEFE80PDEADBEEF"
 ```
 
 Where:
@@ -68,3 +74,10 @@ This approach enables:
 - Zero-touch deployment in distributed environments
 - Strong security boundaries per tenant
 
+## Requirements
+
+- Tailscale install command,
+- Bindplane install command,
+- Username and password (`echo 'secretP@$$w0rd' | base64`)
+    - Note: Base64 encoding allows for passing a Password without breaking the arguments, but it must NOT contain characters ":" or "\n"
+- Bindplane OPAMP endpoint
