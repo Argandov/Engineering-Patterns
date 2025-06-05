@@ -2,9 +2,9 @@
 
 A monorepo consisting of a curated collection of infrastructure and automation patterns from the field.
 
-Each folder contains a reproducible implementation of a high-leverage solution—designed for clarity, portability, and reuse.
+Each folder contains a reproducible implementation of a high-leverage solution, designed for clarity, portability, and reuse. Each project corresponds to independent projects I've built. 
 
-These aren’t just scripts—they’re engineering *blueprints*.
+General scripts and engineering *blueprints*.
 
 ---
 
