@@ -1,0 +1,20 @@
+version: "3.9"
+
+services:
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    ports: ["9090:9090"]               
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - --storage.tsdb.retention.time=30d
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana-oss:11.0.0
+    ports: ["3000:3000"]
+    volumes: [ grafana_data:/var/lib/grafana ]
+    restart: unless-stopped
+
+volumes:
+  grafana_data:
