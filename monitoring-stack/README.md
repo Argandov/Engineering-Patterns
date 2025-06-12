@@ -1,6 +1,6 @@
 # Hades: Monitoring Stack
 
-This engineering pattern is a skeleton for a monitoring stack with Grafana Loki, Prometheus and Grafana, and specific and custom log sources. "Hades" is the name I coined for this project. 
+This engineering pattern is a skeleton for a monitoring stack with Grafana Loki, Prometheus and Grafana, and specific and custom log sources all inside a Tailscale private network. "Hades" is the name I coined for this project. 
 
 ## Project Structure:
 
@@ -23,6 +23,8 @@ This monitoring stack uses docker compose, and binds docker volumes to relative 
 # Tailscale usage
 
 This architecture assumes everything is inside Tailscale, and tailnet machines have a hostname of `$CLIENT-$HOSTNAME`, where "client" might be the environment, or any logical categorization we desire to use (i.e. dev, prod, proxmox, homelab, etc.)
+
+The whole monitoring stack depends on Tailscale's IPs, hostnames. 
 
 # Prometheus
 
