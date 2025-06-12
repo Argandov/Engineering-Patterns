@@ -1,20 +1,31 @@
-version: "3.9"
+# docker-compose.yml
+
+version: '3.8'
 
 services:
   prometheus:
-    image: prom/prometheus:v2.52.0
-    ports: ["9090:9090"]               
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
     volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
-    command:
-      - --storage.tsdb.retention.time=30d
+      - ./prometheus-data/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus-data/data:/prometheus
     restart: unless-stopped
-
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.retention.time=30d"
+      - "--web.enable-lifecycle"
   grafana:
-    image: grafana/grafana-oss:11.0.0
-    ports: ["3000:3000"]
-    volumes: [ grafana_data:/var/lib/grafana ]
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana-data/grafana-storage:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=$GRAFANA_PASSWORD
     restart: unless-stopped
 
 volumes:
-  grafana_data:
+  grafana-storage:

@@ -1,0 +1,14 @@
+global:
+  scrape_interval: 60s
+
+scrape_configs:
+  - job_name: 'collector-nodes'
+    static_configs:
+      - targets: ['X.X.X.X:9100']     # Monitoring Server
+        labels:
+          client: _monitor
+          collector: _monitor
+      - targets: ['X.X.X.X:9100']     # Monitored server 2
+        labels:
+          client: Proxmox
+          collector: Wazuh-Dashboard
