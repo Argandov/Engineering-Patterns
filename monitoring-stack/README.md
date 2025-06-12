@@ -39,8 +39,10 @@ sudo chown -R 65534:65534 /home/user/prometheus-data/data
 ## prometheus.yml
 
 **client:** Environment the machines are on
+
     - i.e. Dev, Prod, etc. In my case, it's Proxmox
     - This allows for fine grained filtering in PQL or Grafana
+
 **collector:** The actual name of the server: Can be its hostname or any "alias" we want. i.e. "Proxmox main node"
 
 ## IPTABLES Exporters (Prometheus)
