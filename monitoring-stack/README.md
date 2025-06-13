@@ -2,6 +2,8 @@
 
 This engineering pattern is a skeleton for a monitoring stack with Grafana Loki, Prometheus and Grafana, and specific and custom log sources all inside a Tailscale private network. "Hades" is the name I coined for this project. 
 
+![Grafana Dashboard 1](images/grafana-stats-2.png)
+
 ## Project Structure:
 
 ```
