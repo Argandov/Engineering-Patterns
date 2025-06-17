@@ -14,6 +14,8 @@ baseurl = "" # BASE URL i.e. https://api.vicarius.cloud
 endpoint = "vicarius-external-data-api/incidentEvent/filter" # API ENDPOINT
 BUCKET_NAME = "" # BUCKET NAME
 TIMESTAMP_OBJECT = "state/timestamp.txt"
+time_window = 4 # Hours
+timezone = "" # i.e. "America/Chicago"
 
 VRX_API_URL = baseurl + endpoint
 event_quantity_request = 500
@@ -34,7 +36,7 @@ SLACK_WEBHOOK_URL = get_gcp_secret("SLACK_WEBHOOK_URL")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
-def get_time_data(hours_ago=4, timezone_str="America/Mexico_City"): # EL NUEVO
+def get_time_data(hours_ago=time_window, timezone_str=timezone): # EL NUEVO
     """
     Centralized function to get all required timestamps.
     
@@ -165,7 +167,7 @@ def print_logs(message, level=1):
     elif level == 4:    
         logging.critical(message)
         send_slack_notification(
-                f"🔥 [CRITICAL] [{current_time}] | Cloud Run Job Failed.", 
+                f" [CRITICAL] [{current_time}] | Cloud Run Job Failed.", 
                 error_message=str(message)
                 )
         print_logs("-------------------- END ---------------------",1)
@@ -202,7 +204,7 @@ def upload_to_gcs(trailing_count, processed_events):
         blob.upload_from_string(processed_events.encode("utf-8"), content_type="application/json")
 
         bucket_full_path = f"gs://{BUCKET_NAME}/{gcs_path}"
-        print_logs(f"ℹ️ [INFO] Logs uploaded to {bucket_full_path}", 1)
+        print_logs(f" [INFO] Logs uploaded to {bucket_full_path}", 1)
         e = None
         return "SUCCESS", bucket_full_path, e
     except Exception as e:
@@ -252,30 +254,30 @@ def fetch_vicarius_events(VICARIUS_API_KEY, event_quantity_request, past_epoch_n
             )
         }
 
-    print_logs(f"ℹ️ [INFO] Fetching events from Vicarius API starting at timestamp [{past_time}] - (Timestamp in nanoseconds: {past_epoch_ns})", 1)
+    print_logs(f" [INFO] Fetching events from Vicarius API starting at timestamp [{past_time}] - (Timestamp in nanoseconds: {past_epoch_ns})", 1)
 
     for attempt in range(1, max_retries + 1):
         try:
             response = requests.get(VRX_API_URL, headers=headers, params=params, timeout=timeout)
 
             if response.status_code == 429:  # API rate limit hit
-                print_logs(f"⚠️ [WARNING] API rate limited (HTTP 429). Waiting 60 sec before retry... (Attempt {attempt}/{max_retries})", 2)
+                print_logs(f"[WARNING] API rate limited (HTTP 429). Waiting 60 sec before retry... (Attempt {attempt}/{max_retries})", 2)
                 t.sleep(60)  # Just wait 60 seconds and try again
                 continue
 
             response.raise_for_status()  # Raise error if status is not 2xx
 
             response_data = response.json()
-            return response_data, None  # ✅ Success
+            return response_data, None  # Success
 
         except requests.exceptions.RequestException as e:
-            print_logs(f"⚠️ [WARNING] API request error: {e} (Attempt {attempt}/{max_retries})", 2)
+            print_logs(f"[WARNING] API request error: {e} (Attempt {attempt}/{max_retries})", 2)
             if attempt == max_retries:
-                return None, e  # 🚨 Max retries reached → fail
+                return None, e  # Max retries reached → fail
 
             t.sleep(2)  # Short sleep before retrying (for non-429 errors)
 
-    return None, "Failed after max retries"  # 🚨 If loop exits without success
+    return None, "Failed after max retries"  # If loop exits without success
     
 def send_slack_notification(status, **details):
     """Send formatted message to Slack webhook."""
@@ -376,13 +378,13 @@ def main():
                 events = response_data.get('serverResponseObject', [])
 
                 if not events:
-                    if log_count == 0:  # ✅ Case 1: First call, no logs at all
-                        print_logs(f"ℹ️ [INFO] Zero Events [{current_time}] | No new events since: {past_time}", 1)
+                    if log_count == 0:  # Case 1: First call, no logs at all
+                        print_logs(f"[INFO] Zero Events [{current_time}] | No new events since: {past_time}", 1)
                         
-                        send_slack_notification(f"ℹ️ [INFO] Zero Events [{current_time}] | No new events since: {past_time}", error_message="Got zero events today")
+                        send_slack_notification(f"[INFO] Zero Events [{current_time}] | No new events since: {past_time}", error_message="Got zero events today")
                     else:  # Case 2: No more logs left, but we retrieved at least one batch
                         
-                        print_logs(f"ℹ️ [INFO] Reached final API call. No more events left to process. Last successful batch was at {past_time}. Stopping.", 1)
+                        print_logs(f"[INFO] Reached final API call. No more events left to process. Last successful batch was at {past_time}. Stopping.", 1)
                     break  #  Stop the loop in both cases
                 
                 # Process each event individually and append to a list.
@@ -399,25 +401,25 @@ def main():
                     if events_stored == "FAILURE":
                         print_logs(f"❌ [ERROR] Upload failed for batch {trailing_count}. Stopping execution.", 4)
                         send_slack_notification(f"❌ [ERROR] Upload failed to bucket for batch {trailing_count}.", error_message=f"{error}")
-                        break  # ✅ Stop execution if upload fails
+                        break  # Stop execution if upload fails
 
-                    # ✅ Ensure the timestamp is explicitly re-assigned globally
+                    # Ensure the timestamp is explicitly re-assigned globally
                     if events:
                         new_epoch_ns = events[-1].get('analyticsEventCreatedAtNano')
                         if new_epoch_ns:
                             
                             # +1 para evitar el edge case en que hay 2 eventos con el mismo TS y caer en loops
-                            past_epoch_ns = int(new_epoch_ns) + 1  # ✅ Normal case
+                            past_epoch_ns = int(new_epoch_ns) + 1  # Normal case
                         else:
 
                             # +1 para evitar el edge case en que hay 2 eventos con el mismo TS y caer en loops
                             past_epoch_ns = int(past_epoch_ns + 1)
-                            print_logs(f"ℹ️ [INFO] Warning: Last event missing timestamp. Using incremented past_epoch_ns={past_epoch_ns}.", 2)
+                            print_logs(f" [INFO] Warning: Last event missing timestamp. Using incremented past_epoch_ns={past_epoch_ns}.", 2)
 
                     trailing_count += 1
 
                 elif len(events) < 500:
-                    # ✅ Last batch (less than 500) → Stop
+                    #  Last batch (less than 500) → Stop
                     new_epoch_ns = events[-1].get('analyticsEventCreatedAtNano')
                     # -1 para evitar el edge case en que hay 2 eventos con el mismo TS y caer en loops
                     past_epoch_ns = int(new_epoch_ns) + 1
@@ -426,7 +428,7 @@ def main():
                     if events_stored == "FAILURE":
                         print_logs(f"❌ [ERROR] Upload failed for batch {trailing_count}. Stopping execution.", 4)
                         send_slack_notification(f"❌ [ERROR] Upload failed to bucket for batch {trailing_count}.", error_message=f"{error}")
-                        break  # ✅ Stop execution if upload fails
+                        break  #  Stop execution if upload fails
 
                     if error is not None:
                         print_logs(f"❌ [ERROR] {current_time} | Aborted. Error uploading to GCP CS. Upload failed to bucket for batch {trailing_count}.", 4)
@@ -434,10 +436,10 @@ def main():
                             f"❌ [ERROR] [{current_time}] | Aborted. Error uploading to GCP CS. Upload failed to bucket for batch {trailing_count}.",
                             error_message=f"{error}"
                             )
-                        break  # ✅ Stop execution if upload fails
+                        break  #  Stop execution if upload fails
                     break
         else:
-            print_logs(f"🔥 [CRITICAL] API Vicarius Failed. Error: [{failure}]" ,4)
+            print_logs(f" [CRITICAL] API Vicarius Failed. Error: [{failure}]" ,4)
 
     save_timestamp(past_epoch_ns)
 
@@ -449,7 +451,7 @@ def main():
 
         # 1. Logging
         print_logs(
-            f"✅ [SUCCESS] [{current_time}] | Event processing completed! "
+            f" [SUCCESS] [{current_time}] | Event processing completed! "
             f"time_of_execution={current_time}, total_events_retrieved={log_count}, "
             f"execution_time={execution_duration:.2f} seconds, "
             f"bucket_prefix=gs://{bucket_full_path}, "
@@ -458,7 +460,7 @@ def main():
                 )
         # 2. Send Slack
         send_slack_notification(
-            f"✅ [SUCCESS] [{current_time}] | Event processing completed!",
+            f" [SUCCESS] [{current_time}] | Event processing completed!",
             time_of_execution=current_time,
             total_events_retrieved=log_count,
             execution_time=f"{execution_duration:.2f} seconds",
