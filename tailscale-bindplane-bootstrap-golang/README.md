@@ -1,83 +1,141 @@
-# Pattern: Tailscale + Bindplane Zero-Touch Onboarding
+# Tailscale + BindPlane Zero-Touch Bootstrap
 
-## PROGRAM OVERVIEW:
+> **Note:** This documentation was enhanced with AI assistance to improve clarity and organization.
 
-This program does the following:
+A Go-based bootstrap utility for automated deployment of Tailscale mesh networking and BindPlane monitoring agents across distributed environments.
 
-- Performs some initial checks in the system:
-    - User under which the program is running exists has sudo permissions
-    - Server has internet access and can retrieve Tailscale (tailscale.com) and Bindplane install scripts (github.com) by testing connectivity to this URLS.
-- Creates a user, which name is passed as a flag,
-    - Sets a password which is passed as a Base64 flag
-    - Places user in sudoers
-- Ensures SSH service is up and enabled
-- Installs and sets up Tailscale
-- Installs and sets up Bindplane agent
-- Verifies everything was set up correctly
-- Upon success or failure, sends a Slack notification via Webhook. 
+## Overview
 
-![Slack webhook notification screenshot](./img/webhook.png)
+This tool automates the complete setup process for remote systems by:
 
-## EXECUTION
+- **System Preparation**: Validates prerequisites and creates secure user accounts
+- **SSH Configuration**: Ensures SSH service is running and properly configured  
+- **Tailscale Installation**: Sets up mesh networking with automatic device registration
+- **BindPlane Agent**: Deploys monitoring agent with custom configuration
+- **Service Verification**: Confirms all components are running correctly
+- **Slack Notifications**: Provides real-time deployment status updates
 
-Running:
+![Deployment Notification](./img/webhook.png)
+
+## Quick Start
+
+### Prerequisites
+
+- Linux system with internet connectivity
+- Root/sudo access
+- Valid Tailscale auth key
+- BindPlane endpoint and API key
+- Slack webhook URL (optional)
+
+### Installation
+
+Download the appropriate binary from releases or build locally:
 
 ```bash
-sudo ./bootstrap-linux-amd64 -i $C_ID -u $USERNAME -p $B64_PASSWORDK -w $OPAMP_ENDPOINT -k $BP_KEY -v $BP_VERSION -c $BP_CONFIG -K $TS_KEY -s $SLACK_WEBHOOK_ENDPOINT
+# Build for multiple platforms
+./build.sh
+
+# Run cleanup if needed
+./cleanup.sh
 ```
 
-Example:
+### Usage
 
 ```bash
-sudo bootstrap-linux-amd64 -i homelab -u user -p 'cGFzc3dvcmQxMjMK' -w 'app.bindplane.com/v1/opamp' -k 'DEADBEEFC8D775H07XWQ3X' -v '1.76.4' -c "configuration=LinuxCollectorAgent,install_id=deadbeef-d15c-420f-9ede-b1de5f57d6c4" -K "tskey-auth-deadbeef-DEADBEEFNAUpShGkh5FN71Yai2a76H" -s "DEADBEEF/B08D2NPSHG9/NO98hp0SptEFE80PDEADBEEF"
+sudo ./bootstrap-linux-amd64 \
+  -i <client-id> \
+  -u <username> \
+  -p <base64-password> \
+  -w <bindplane-endpoint> \
+  -k <bindplane-key> \
+  -v <bindplane-version> \
+  -c <bindplane-config> \
+  -K <tailscale-key> \
+  -s <slack-webhook>
 ```
 
-Where:
-- C_ID: A prefix for our Tailscale agents. i.e. Tailscale agents become $C_ID-$hostname. For example, `homelab-webserver01`
-- USERNAME: The new username we need for our system,
-- B64_PASSWORD: Encoded password this program will assign to our user,
-- OPAMP_ENDPOINT: The Bindplane endpoint, WITHOUT `ws://`. i.e. "app.bindplane.com/v1/opamp"
-- BP_KEY: Bindplane Key
-- BP_VERSION: Bindplane version. This will be passed at installation, and also to the download url at Github. i.e. `1.72.3`
-- BP_CONFIG: Full Configuration string. For example, "`configuration=homelab,installid=<UUID>`"
-- TS_KEY: Tailscale key. Format: "`tskey-auth-<key>"`
-- WEBHOOK: Slack Webhook endpoint. ONLY the path. For example, `FAT02THA0XS/HDPOUN71SHG9/JHFNBIO8YHBN8NN0FE80PJD0F7mTK`
+### Example
 
-### Helper Scripts
+```bash
+sudo ./bootstrap-linux-amd64 \
+  -i homelab \
+  -u hl-user \
+  -p 'cGFzc3dvcmQxMjMK' \
+  -w 'app.bindplane.com/v1/opamp' \
+  -k 'DEADBEEFC8D775H07XWQ3X' \
+  -v '1.76.4' \
+  -c "configuration=LinuxCollectorAgent,install_id=deadbeef-d15c-420f-9ede-b1de5f57d6c4" \
+  -K "tskey-auth-deadbeef-DEADBEEFNAUpShGkh5FN71Yai2a76H" \
+  -s "DEADBEEF/B08D2NPSHG9/NO98hp0SptEFE80PDEADBEEF"
+```
 
-- `build.sh` -> Auto Go Build for Linux amd/arm64, and MacOS (ARM64)
-- `cleanup.sh` -> This uninstalls everything, including deleting the user created.
+## Configuration Parameters
 
-## Problem
+| Flag | Description | Example |
+|------|-------------|---------|
+| `-i` | Client ID prefix for Tailscale hostnames | `homelab` |
+| `-u` | Username to create on target system | `hl-user` |
+| `-p` | Base64-encoded password for new user | `cGFzc3dvcmQxMjMK` |
+| `-w` | BindPlane OpAMP endpoint (without `ws://`) | `app.bindplane.com/v1/opamp` |
+| `-k` | BindPlane API key | `DEADBEEFC8D775H07XWQ3X` |
+| `-v` | BindPlane agent version | `1.76.4` |
+| `-c` | BindPlane configuration string | `configuration=LinuxCollectorAgent` |
+| `-K` | Tailscale authentication key | `tskey-auth-...` |
+| `-s` | Slack webhook path (optional) | `TEAM/CHANNEL/TOKEN` |
 
-Onboarding log ingestion agents across isolated client networks with secure access, minimal setup, and strict isolation.
-This is a blueprint for initial installation of Tailscale and Bindplane agents for Zero Trust remote administration and monitoring.
+## Use Cases
 
-I haven't figured out yet a name for classifying the "controller" and "client" nodes. This script installs "client" nodes in Tailscale. A clear distinction in Tailscale ACLs could be `tag:admin` and `tag:client`.
+- **Zero-touch deployments** in cloud and virtualized environments
+- **Secure remote administration** through Tailscale mesh networking
+- **Centralized monitoring** with BindPlane observability
+- **Multi-tenant isolation** with proper ACL boundaries
 
-This script is ONLY to be used between trusted systems and strictly inside trust boundaries, as it contains sensitive data. Also, it can be used for one-shot deployments or for short burst periods (I.e. temporary Tailscale auth keys, temporary or even authenticated file sharing between client and script fileserver, etc). See Security section below.
+## Security Considerations
 
-## Solution
+⚠️ **Important**: This tool is designed for trusted environments only.
 
-This pattern uses:
+- Contains sensitive authentication tokens
+- Should be used within established trust boundaries
+- Recommended for one-shot deployments or time-limited scenarios
+- Consider using temporary Tailscale auth keys when possible
 
-- Tailscale for mesh connectivity
-- Bindplane for agent or server monitoring
-- A bootstrap script that installs both with required tokens
+## Architecture
 
-This is often used when I need to bootstrap servers on Virtualized or even Cloud environments. Bindplane is optional, but required when I have a centralized monitoring solution (The bindplane configuration will depend on the use case, and this bootstrap script will only install the agent). 
+The tool follows a modular structure:
 
-## Purpose
+```
+├── main.go              # CLI interface and orchestration
+├── helpers/             # Utility functions
+│   ├── checkers.go      # System validation
+│   ├── downloader.go    # File retrieval
+│   ├── executor.go      # Command execution
+│   └── notifier.go      # Slack integration
+├── pkg/                 # Core functionality
+│   ├── bindplane.go     # BindPlane agent setup
+│   ├── tailscale.go     # Tailscale installation
+│   └── verify.go        # Service verification
+└── system/              # System management
+    ├── ssh.go           # SSH configuration
+    └── user.go          # User management
+```
 
-This approach enables:
+## Development
 
-- Zero-touch deployment in distributed environments
-- Strong security boundaries per tenant
+### Building
 
-## Requirements
+```bash
+# Build for all supported platforms
+./build.sh
 
-- Tailscale install command,
-- Bindplane install command,
-- Username and password (`echo 'secretP@$$w0rd' | base64`)
-    - Note: Base64 encoding allows for passing a Password without breaking the arguments, but it must NOT contain characters ":" or "\n"
-- Bindplane OPAMP endpoint
+# Manual build
+go build -o bootstrap .
+```
+
+### Dependencies
+
+- Go 1.22.1+
+- github.com/spf13/cobra for CLI
+
+## License
+
+See [LICENSE.md](LICENSE.md) for details.
