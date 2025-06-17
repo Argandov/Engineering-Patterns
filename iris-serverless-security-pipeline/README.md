@@ -25,10 +25,12 @@ The main script (`main.py`) performs the following tasks:
 
 ## Project Structure
 
+```
 │── main.py              # Main script that runs the ETL process
 │── requirements.txt     # Python dependencies for Cloud Run
 │── Procfile             # (Optional) Command for Cloud Run
 │── README.md            # This file
+```
 
 # How It Works
 
