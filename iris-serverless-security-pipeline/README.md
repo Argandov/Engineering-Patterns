@@ -28,8 +28,7 @@ The main script (`main.py`) performs the following tasks:
 ```
 │── main.py              # Main script that runs the ETL process
 │── requirements.txt     # Python dependencies for Cloud Run
-│── Procfile             # (Optional) Command for Cloud Run
-│── README.md            # This file
+│── Procfile             # Necessary for GCP CR to treat this as a non-web application
 ```
 
 # How It Works
