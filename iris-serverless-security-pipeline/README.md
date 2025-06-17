@@ -10,9 +10,9 @@ Execution alerts (only key events) are sent to Slack, and detailed step-by-step 
 - Vicarius vRx base URL (e.g. `api.vicarius.com`)  
 - GCP project name  
 
-The variable `hours_ago` defines the time window (4 hours) from which logs will be pulled.
+The variable `time_window` defines the time diff from which logs will be pulled (Every `$time_window` hours)
 
-## 📌 Description
+## Description
 
 The main script (`main.py`) performs the following tasks:
 
@@ -23,15 +23,14 @@ The main script (`main.py`) performs the following tasks:
 5. **Send notifications to Slack** for errors or successful runs.  
 6. **Log to GCP** at extra-verbose level so that Cloud Run Jobs show full execution logs, while Slack only shows overall success or failure.
 
-## 📂 Project Structure
+## Project Structure
 
-iris-security-pipeline/
 │── main.py              # Main script that runs the ETL process
 │── requirements.txt     # Python dependencies for Cloud Run
 │── Procfile             # (Optional) Command for Cloud Run
 │── README.md            # This file
 
-# ⚙️ How It Works
+# How It Works
 
 - **Automatic Execution:** Scheduled via Cloud Scheduler to run every 4 hours as a Cloud Run Job.
 - **Serverless ETL:** No dedicated servers; Google Cloud handles everything.
@@ -39,7 +38,7 @@ iris-security-pipeline/
 - **Data Format:** Events are stored in NDJSON, optimized for ingestion by Google SecOps.
 - **Error Handling:** API or execution failures trigger Slack alerts.
 
-# 🛠 Dependencies
+# Dependencies
 
 Python packages:
 
@@ -49,7 +48,7 @@ Python packages:
 - `datetime`
 - `pytz`
 
-# 🚀 Final Notes
+# Final Notes
 
 - Built to run as a Cloud Run Job.
 - If the API returns no events, the timestamp is not updated—ensuring the next run covers the same time window.
