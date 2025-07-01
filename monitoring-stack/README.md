@@ -4,6 +4,8 @@
 
 A complete monitoring solution built for Tailscale private networks, featuring Prometheus, Grafana, Loki, and custom network traffic exporters.
 
+Blog post: [argv.cloud/blog/2025/monitoring-infra-stack/](https://argv.cloud/blog/2025/monitoring-infra-stack/)
+
 ![Grafana Dashboard](images/grafana-stats-2.png)
 
 Information flow inside a Tailscale's Tailnet:
