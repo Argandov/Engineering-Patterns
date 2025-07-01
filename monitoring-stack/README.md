@@ -6,6 +6,10 @@ A complete monitoring solution built for Tailscale private networks, featuring P
 
 ![Grafana Dashboard](images/grafana-stats-2.png)
 
+Information flow inside a Tailscale's Tailnet:
+
+![Tailscale network](images/tailscale-monitoring-network.svg)
+
 ## Overview
 
 This monitoring stack provides comprehensive observability for infrastructure deployed across Tailscale networks. It includes custom exporters for firewall traffic monitoring and is designed to work seamlessly with Tailscale's hostname conventions.
